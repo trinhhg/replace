@@ -3,23 +3,32 @@ import { translations } from './translations.js';
 export let currentLang = 'vn';
 
 export function showMainUI() {
-  document.querySelector(".container").style.display = "block";
-  document.querySelector(".login-container").style.display = "none";
+  const container = document.querySelector(".container");
+  const loginContainer = document.querySelector(".login-container");
+  if (container) container.style.display = "block";
+  if (loginContainer) loginContainer.classList.add('hidden');
 }
 
 export function showLoginUI() {
-  document.querySelector(".container").style.display = "none";
-  document.querySelector(".login-container").style.display = "flex";
+  const container = document.querySelector(".container");
+  const loginContainer = document.querySelector(".login-container");
+  if (container) container.classList.add('hidden');
+  if (loginContainer) loginContainer.classList.remove('hidden');
 }
 
 export function showLoadingUI() {
-  document.querySelector(".container").style.display = "none";
-  document.querySelector(".login-container").style.display = "none";
-  const loadingDiv = document.createElement('div');
-  loadingDiv.id = 'loading';
-  loadingDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; color: #333;';
-  loadingDiv.textContent = translations.vn.loading;
-  document.body.appendChild(loadingDiv);
+  const container = document.querySelector(".container");
+  const loginContainer = document.querySelector(".login-container");
+  if (container) container.classList.add('hidden');
+  if (loginContainer) loginContainer.classList.add('hidden');
+  let loadingDiv = document.getElementById('loading');
+  if (!loadingDiv) {
+    loadingDiv = document.createElement('div');
+    loadingDiv.id = 'loading';
+    loadingDiv.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-4 rounded shadow-lg text-gray-800 dark:text-gray-200 z-50';
+    loadingDiv.textContent = translations.vn.loading;
+    document.body.appendChild(loadingDiv);
+  }
 }
 
 export function hideLoadingUI() {
@@ -41,9 +50,9 @@ export function updateLanguage(lang) {
     addMode: document.getElementById('add-mode'),
     copyMode: document.getElementById('copy-mode'),
     matchCase: document.getElementById('match-case'),
-    findPlaceholder: document.getElementById('find-placeholder'),
-    replacePlaceholder: document.getElementById('replace-placeholder'),
-    removeButton: document.getElementById('remove-button'),
+    findPlaceholder: document.querySelector('#punctuation-list .find'),
+    replacePlaceholder: document.querySelector('#punctuation-list .replace'),
+    removeButton: document.querySelector('#punctuation-list .remove'),
     addPair: document.getElementById('add-pair'),
     saveSettings: document.getElementById('save-settings'),
     replaceTitle: document.getElementById('replace-title'),
@@ -54,25 +63,16 @@ export function updateLanguage(lang) {
     splitTitle: document.getElementById('split-title'),
     splitInputText: document.getElementById('split-input-text'),
     splitButton: document.getElementById('split-button'),
-    output1Text: document.getElementById('output1-text'),
-    output2Text: document.getElementById('output2-text'),
-    output3Text: document.getElementById('output3-text'),
-    output4Text: document.getElementById('output4-text'),
-    copyButton1: document.getElementById('copy-button1'),
-    copyButton2: document.getElementById('copy-button2'),
-    copyButton3: document.getElementById('copy-button3'),
-    copyButton4: document.getElementById('copy-button4'),
     exportSettings: document.getElementById('export-settings'),
     importSettings: document.getElementById('import-settings'),
     logoutLink: document.getElementById('logout-link')
   };
 
   if (elements.appTitle) elements.appTitle.textContent = translations[lang].appTitle;
-  const textNode = Array.from(elements.contactText1.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
-  if (textNode) {
-    textNode.textContent = translations[lang].contactText1;
-  } else {
-    elements.contactText1.insertBefore(document.createTextNode(translations[lang].contactText1), elements.contactText1.firstChild);
+  if (elements.contactText1) {
+    const textNode = Array.from(elements.contactText1.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+    if (textNode) textNode.textContent = translations[lang].contactText1;
+    else elements.contactText1.insertBefore(document.createTextNode(translations[lang].contactText1), elements.contactText1.firstChild);
   }
   if (elements.settingsTab) elements.settingsTab.textContent = translations[lang].settingsTab;
   if (elements.replaceTab) elements.replaceTab.textContent = translations[lang].replaceTab;
@@ -95,14 +95,6 @@ export function updateLanguage(lang) {
   if (elements.splitTitle) elements.splitTitle.textContent = translations[lang].splitTitle;
   if (elements.splitInputText) elements.splitInputText.placeholder = translations[lang].splitInputText;
   if (elements.splitButton) elements.splitButton.textContent = translations[lang].splitButton;
-  if (elements.output1Text) elements.output1Text.placeholder = translations[lang].output1Text;
-  if (elements.output2Text) elements.output2Text.placeholder = translations[lang].output2Text;
-  if (elements.output3Text) elements.output3Text.placeholder = translations[lang].output3Text;
-  if (elements.output4Text) elements.output4Text.placeholder = translations[lang].output4Text;
-  if (elements.copyButton1) elements.copyButton1.textContent = translations[lang].copyButton + ' 1';
-  if (elements.copyButton2) elements.copyButton2.textContent = translations[lang].copyButton + ' 2';
-  if (elements.copyButton3) elements.copyButton3.textContent = translations[lang].copyButton + ' 3';
-  if (elements.copyButton4) elements.copyButton4.textContent = translations[lang].copyButton + ' 4';
   if (elements.exportSettings) elements.exportSettings.textContent = translations[lang].exportSettings;
   if (elements.importSettings) elements.importSettings.textContent = translations[lang].importSettings;
   if (elements.logoutLink) elements.logoutLink.textContent = translations[lang].logoutText;
@@ -116,59 +108,43 @@ export function updateLanguage(lang) {
     if (replaceInput) replaceInput.placeholder = translations[lang].replacePlaceholder;
     if (removeBtn) removeBtn.textContent = translations[lang].removeButton;
   });
+}
 
-  const modeSelect = document.getElementById('mode-select');
-  if (modeSelect) {
-    loadModes();
-  }
+export function attachTabEvents() {
+  const tabButtons = document.querySelectorAll('.tab-button');
+  if (!tabButtons) return;
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tabName = button.getAttribute('data-tab');
+      const tabContents = document.querySelectorAll('.tab-content');
+      const allButtons = document.querySelectorAll('.tab-button');
+      tabContents.forEach(tab => tab.classList.add('hidden'));
+      allButtons.forEach(btn => btn.classList.remove('active'));
+
+      const selectedTab = document.getElementById(tabName);
+      if (selectedTab) selectedTab.classList.remove('hidden');
+      button.classList.add('active');
+    });
+  });
 }
 
 export function showUpdateDialog() {
   const overlay = document.createElement('div');
   overlay.id = 'update-overlay';
-  overlay.style.position = 'fixed';
-  overlay.style.top = '0';
-  overlay.style.left = '0';
-  overlay.style.width = '100%';
-  overlay.style.height = '100%';
-  overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-  overlay.style.zIndex = '10000';
-
+  overlay.className = 'fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-40';
   const dialog = document.createElement('div');
   dialog.id = 'update-dialog';
-  dialog.style.position = 'fixed';
-  dialog.style.top = '50%';
-  dialog.style.left = '50%';
-  dialog.style.transform = 'translate(-50%, -50%)';
-  dialog.style.backgroundColor = '#fff';
-  dialog.style.padding = '20px';
-  dialog.style.borderRadius = '8px';
-  dialog.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-  dialog.style.zIndex = '10001';
-  dialog.style.maxWidth = '400px';
-  dialog.style.width = '90%';
-  dialog.style.textAlign = 'center';
-
+  dialog.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-gray-800 dark:text-gray-200 z-50 max-w-md w-11/12 text-center';
   const title = document.createElement('h3');
   title.textContent = 'Thông báo từ TRINOVAVERS';
-  title.style.margin = '0 0 10px 0';
-  dialog.appendChild(title);
-
+  title.className = 'text-xl font-bold mb-4';
   const message = document.createElement('p');
   message.textContent = translations.vn.updateAvailable;
-  message.style.margin = '20px 0';
-  dialog.appendChild(message);
-
+  message.className = 'mb-6 text-gray-600 dark:text-gray-300';
   const reloadButton = document.createElement('button');
   reloadButton.id = 'reload-btn';
   reloadButton.textContent = translations.vn.reloadButton;
-  reloadButton.style.padding = '10px 20px';
-  reloadButton.style.backgroundColor = '#007bff';
-  reloadButton.style.color = '#fff';
-  reloadButton.style.border = 'none';
-  reloadButton.style.borderRadius = '5px';
-  reloadButton.style.cursor = 'pointer';
-  reloadButton.style.marginTop = '10px';
+  reloadButton.className = 'px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600';
   reloadButton.addEventListener('click', () => {
     const userConfirmed = confirm("🔄 Trang đã có phiên bản mới.\nNhấn OK hoặc bấm F5 để tải lại.");
     if (userConfirmed) {
@@ -176,8 +152,10 @@ export function showUpdateDialog() {
       location.replace(location.pathname + '?v=' + Date.now());
     }
   });
-  dialog.appendChild(reloadButton);
 
+  dialog.appendChild(title);
+  dialog.appendChild(message);
+  dialog.appendChild(reloadButton);
   document.body.appendChild(overlay);
   document.body.appendChild(dialog);
 
@@ -187,22 +165,29 @@ export function showUpdateDialog() {
   });
 }
 
-// Mới: Thêm theme switch (dark/light)
 export function addThemeSwitch() {
+  const header = document.getElementById('header');
+  if (!header) return;
   const themeButton = document.createElement('button');
   themeButton.textContent = 'Chuyển theme';
   themeButton.className = 'bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded';
   themeButton.addEventListener('click', () => {
-    document.body.classList.toggle('dark-theme'); // Thêm class CSS .dark-theme { background: #333; color: #fff; }
+    document.body.classList.toggle('dark-theme');
+    document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
   });
-  document.getElementById('header')?.appendChild(themeButton);
+  // Load saved theme
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.body.classList.add('dark-theme');
+  }
+  header.appendChild(themeButton);
 }
 
-// Mới: Thêm tooltip hướng dẫn (ví dụ cho replace button)
 export function addTooltips() {
   const replaceButton = document.getElementById('replace-button');
-  if (replaceButton) {
-    replaceButton.title = 'Nhấn để thay thế dấu câu trong văn bản đầu vào';
-  }
-  // Tương tự cho các element khác
+  if (replaceButton) replaceButton.title = 'Nhấn để thay thế dấu câu trong văn bản đầu vào';
+  const splitButton = document.getElementById('split-button');
+  if (splitButton) splitButton.title = 'Nhấn để chia văn bản thành các chương';
 }
