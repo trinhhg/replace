@@ -9,9 +9,18 @@ export const firebaseConfig = {
 };
 
 export function initFirebase() {
-  firebase.initializeApp(firebaseConfig);
-  return {
-    auth: firebase.auth(),
-    db: firebase.firestore()
-  };
+  try {
+    if (!window.firebase) {
+      console.error("Firebase library not loaded. Check script tags.");
+      return null;
+    }
+    const app = firebase.initializeApp(firebaseConfig);
+    return {
+      auth: app.auth(),
+      db: app.firestore()
+    };
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+    return null;
+  }
 }
