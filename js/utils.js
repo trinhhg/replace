@@ -11,7 +11,7 @@ export function saveInputState() {
     inputText: document.getElementById('input-text')?.value || '',
     outputText: document.getElementById('output-text')?.value || '',
     splitInputText: document.getElementById('split-input-text')?.value || '',
-    outputs: Array.from({length: 10}, (_, i) => document.getElementById(`output${i+1}-text`)?.value || ''), // Dynamic for 2-10
+    outputs: Array.from({length: 10}, (_, i) => document.getElementById(`output${i+1}-text`)?.value || ''),
     punctuationItems: Array.from(document.querySelectorAll('.punctuation-item')).map(item => ({
       find: item.querySelector('.find')?.value || '',
       replace: item.querySelector('.replace')?.value || ''
@@ -31,14 +31,12 @@ export function restoreInputState() {
     const textarea = document.getElementById(`output${i+1}-text`);
     if (textarea) textarea.value = text;
   });
-  if (state.punctuationItems && state.punctuationItems.length > 0) {
-    const list = document.getElementById('punctuation-list');
-    if (list) {
-      list.innerHTML = '';
-      state.punctuationItems.slice().reverse().forEach(pair => {
-        addPair(pair.find, pair.replace);
-      });
-    }
+  const list = document.getElementById('punctuation-list');
+  if (list && state.punctuationItems && state.punctuationItems.length > 0) {
+    list.innerHTML = '';
+    state.punctuationItems.slice().reverse().forEach(pair => {
+      addPair(pair.find, pair.replace);
+    });
   }
 }
 
@@ -70,11 +68,14 @@ export function showNotification(message, type = 'success') {
   if (!container) return;
 
   const notification = document.createElement('div');
-  notification.className = `notification ${type} bg-${type === 'success' ? 'green' : 'red'}-500 text-white p-2 rounded`;
+  notification.className = `notification ${type} p-3 rounded shadow transition-opacity duration-300`;
   notification.textContent = message;
   container.appendChild(notification);
 
-  setTimeout(() => notification.remove(), 3000);
+  setTimeout(() => {
+    notification.classList.add('opacity-0');
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
 }
 
 export function countWords(text) {
@@ -95,17 +96,17 @@ export function addPair(find = '', replace = '') {
   if (!list) return;
 
   const item = document.createElement('div');
-  item.className = 'punctuation-item flex items-center mb-2';
+  item.className = 'punctuation-item flex flex-col md:flex-row gap-2 mb-2';
 
   const findInput = document.createElement('input');
   findInput.type = 'text';
-  findInput.className = 'find border p-2 mr-2 flex-1';
+  findInput.className = 'find border p-2 mr-2 flex-1 rounded dark:border-gray-600 dark:bg-gray-700';
   findInput.placeholder = translations.vn.findPlaceholder;
   findInput.value = find;
 
   const replaceInput = document.createElement('input');
   replaceInput.type = 'text';
-  replaceInput.className = 'replace border p-2 mr-2 flex-1';
+  replaceInput.className = 'replace border p-2 mr-2 flex-1 rounded dark:border-gray-600 dark:bg-gray-700';
   replaceInput.placeholder = translations.vn.replacePlaceholder;
   replaceInput.value = replace;
 
