@@ -11,23 +11,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const firebaseInstance = initFirebase();
   if (!firebaseInstance) {
     showNotification('Không thể khởi tạo Firebase. Chức năng yêu cầu đăng nhập có thể không hoạt động.', 'error');
-    return;
   }
-  const { auth, db } = firebaseInstance;
+  const { auth, db } = firebaseInstance || { auth: null, db: null };
 
   // Gắn sự kiện hoạt động
-  ['mousemove', 'click', 'keydown', 'scroll', 'touchstart'].forEach(event => {
-    document.addEventListener(event, resetActivity);
-  });
+  ['mousemove', 'click', 'keydown', 'scroll', 'touchstart'].forEach(event => document.addEventListener(event, resetActivity));
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') checkIdle();
   });
   setInterval(checkIdle, CHECK_INTERVAL);
 
   // Auth and UI
-  handleAuthStateChange(auth, db);
-  handleLogin(auth, db);
-  handleLogout(auth);
+  if (auth && db) {
+    handleAuthStateChange(auth, db);
+    handleLogin(auth, db);
+    handleLogout(auth);
+  } else {
+    showLoginUI(); // Fallback to login if Firebase fails
+  }
   addPaymentButton();
 
   // Check version
@@ -109,11 +110,21 @@ function attachButtonEvents() {
 
   const addPairButton = document.getElementById('add-pair');
   if (addPairButton) addPairButton.addEventListener('click', () => addPair());
+
+  // Input listeners for word count
+  const inputText = document.getElementById('input-text');
+  if (inputText) inputText.addEventListener('input', () => updateWordCount('input-text', 'input-word-count'));
+
+  const outputText = document.getElementById('output-text');
+  if (outputText) outputText.addEventListener('input', () => updateWordCount('output-text', 'output-word-count'));
+
+  const splitInputText = document.getElementById('split-input-text');
+  if (splitInputText) splitInputText.addEventListener('input', () => updateWordCount('split-input-text', 'split-input-word-count'));
 }
 
 async function checkVersionLoop() {
   try {
-    const baseURL = 'https://trinhhg.github.io/tienichtrinhhg'; // Adjust to your repo
+    const baseURL = 'https://trinovavers.github.io/tienichtrinhhg';
     const versionResponse = await fetch(`${baseURL}/version.json?${Date.now()}`, {
       cache: 'no-store'
     });
@@ -125,116 +136,13 @@ async function checkVersionLoop() {
     } else if (versionData.version !== window.currentVersion) {
       setTimeout(() => {
         showUpdateDialog();
-      }, 360000); // 6 minutes delay
+      }, 360000);
       return;
     }
-    setTimeout(checkVersionLoop, 5000); // Check every 5 seconds
+    setTimeout(checkVersionLoop, 5000);
   } catch (err) {
     console.error('Lỗi kiểm tra version:', err);
-    showNotification('Lỗi khi kiểm tra phiên bản. Vui lòng thử lại sau.', 'error');
-    setTimeout(checkVersionLoop, 5000); // Retry after 5 seconds
-  }
-}
-
-window.currentVersion = null;
-checkVersionLoop();  updateLanguage('vn');
-  loadModes();
-  attachTabEvents();
-  addSplitModeButtons();
-  updateSplitModeUI(2);
-  addThemeSwitch();
-  addTooltips();
-
-  // Attach button events
-  attachButtonEvents();
-});
-
-function attachButtonEvents() {
-  const matchCaseButton = document.getElementById('match-case');
-  if (matchCaseButton) {
-    matchCaseButton.addEventListener('click', () => {
-      matchCaseEnabled = !matchCaseEnabled;
-      matchCaseButton.textContent = matchCaseEnabled ? translations.vn.matchCaseOn : translations.vn.matchCaseOff;
-      matchCaseButton.classList.toggle('bg-green-500', matchCaseEnabled);
-      matchCaseButton.classList.toggle('bg-gray-500', !matchCaseEnabled);
-      saveSettings();
-    });
-  }
-
-  const addModeButton = document.getElementById('add-mode');
-  if (addModeButton) {
-    addModeButton.addEventListener('click', () => {
-      const newMode = prompt(translations.vn.newModePrompt);
-      if (newMode && !newMode.includes('mode_') && newMode.trim() !== '' && newMode !== 'default') {
-        let settings = JSON.parse(localStorage.getItem('local_settings')) || { modes: { default: { pairs: [], matchCase: false } } };
-        if (settings.modes[newMode]) return showNotification(translations.vn.invalidModeName, 'error');
-        settings.modes[newMode] = { pairs: [], matchCase: false };
-        localStorage.setItem('local_settings', JSON.stringify(settings));
-        currentMode = newMode;
-        loadModes();
-        showNotification(translations.vn.modeCreated.replace('{mode}', newMode), 'success');
-      } else {
-        showNotification(translations.vn.invalidModeName, 'error');
-      }
-    });
-  }
-
-  const replaceButton = document.getElementById('replace-button');
-  if (replaceButton) {
-    replaceButton.addEventListener('click', () => {
-      const inputTextArea = document.getElementById('input-text');
-      let settings = JSON.parse(localStorage.getItem('local_settings')) || { modes: { default: { pairs: [], matchCase: false } } };
-      const modeSettings = settings.modes[currentMode] || { pairs: [], matchCase: false };
-      const pairs = modeSettings.pairs || [];
-      if (pairs.length === 0) return showNotification(translations.vn.noPairsConfigured, 'error');
-      const outputText = replaceText(inputTextArea.value, pairs, modeSettings.matchCase);
-      const outputTextArea = document.getElementById('output-text');
-      if (outputTextArea) outputTextArea.value = outputText;
-      if (inputTextArea) inputTextArea.value = '';
-      updateWordCount('input-text', 'input-word-count');
-      updateWordCount('output-text', 'output-word-count');
-      showNotification(translations.vn.textReplaced, 'success');
-      saveInputState();
-    });
-  }
-
-  const splitButton = document.getElementById('split-button');
-  if (splitButton) splitButton.addEventListener('click', handleSplit);
-
-  const exportSettingsButton = document.getElementById('export-settings');
-  if (exportSettingsButton) exportSettingsButton.addEventListener('click', exportSettings);
-
-  const importSettingsButton = document.getElementById('import-settings');
-  if (importSettingsButton) importSettingsButton.addEventListener('click', importSettings);
-
-  const saveSettingsButton = document.getElementById('save-settings');
-  if (saveSettingsButton) saveSettingsButton.addEventListener('click', saveSettings);
-
-  const addPairButton = document.getElementById('add-pair');
-  if (addPairButton) addPairButton.addEventListener('click', () => addPair());
-}
-
-async function checkVersionLoop() {
-  try {
-    const baseURL = 'https://trinhhg.github.io/tienichtrinhhg';
-    const versionResponse = await fetch(`${baseURL}/version.json?${Date.now()}`, {
-      cache: 'no-store'
-    });
-    if (!versionResponse.ok) throw new Error('Không thể tải version.json');
-    const versionData = await versionResponse.json();
-
-    if (!window.currentVersion) {
-      window.currentVersion = versionData.version;
-    } else if (versionData.version !== window.currentVersion) {
-      setTimeout(() => {
-        showUpdateDialog();
-      }, 360000); // 6 minutes delay
-      return;
-    }
-    setTimeout(checkVersionLoop, 5000); // Check every 5 seconds
-  } catch (err) {
-    console.error('Lỗi kiểm tra version:', err);
-    setTimeout(checkVersionLoop, 5000); // Retry after 5 seconds
+    setTimeout(checkVersionLoop, 5000);
   }
 }
 
