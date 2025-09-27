@@ -65,7 +65,7 @@ export const translations = {
     accountDeactivated: 'Tài khoản đã bị vô hiệu hóa.',
     updateAvailable: 'Trinovavers cho biết: Trang đã có phiên bản mới. Bấm "Tải lại" hoặc nhấn F5 để cập nhật.',
     reloadButton: 'Tải lại',
-    exportPDF: 'Export PDF', // Thêm mới
-    payButton: 'Thanh toán gia hạn' // Thêm mới
+    exportPDF: 'Export PDF',
+    payButton: 'Thanh toán gia hạn'
   }
 };
