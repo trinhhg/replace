@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  @apply max-w-4xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg;
+}
+
+h1, h2 {
+  @apply text-center md:text-left;
+}
+
+.tab-button {
+  @apply flex-1 p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer text-center rounded-t-lg;
+}
+
+.tab-button.active {
+  @apply bg-blue-500 text-white;
+}
+
+.tab-content {
+  @apply p-4 border border-t-0 rounded-b-lg bg-gray-50 dark:bg-gray-900;
+}
+
+.punctuation-item {
+  @apply flex flex-col md:flex-row gap-2 mb-2;
+}
+
+.punctuation-item input {
+  @apply flex-1 p-2 border rounded dark:border-gray-600 dark:bg-gray-700;
+}
+
+.punctuation-item button {
+  @apply bg-red-500 text-white p-2 rounded hover:bg-red-600;
+}
+
+.word-count {
+  @apply text-sm text-gray-600 dark:text-gray-400 mt-1 text-center;
+}
+
+.notification.success {
+  @apply bg-green-500 text-white p-3 rounded shadow;
+}
+
+.notification.error {
+  @apply bg-red-500 text-white p-3 rounded shadow;
+}
+
+.dark {
+  --bg-color: #1f2937;
+  --text-color: #f3f4f6;
+}
+
+.light {
+  --bg-color: #f9fafb;
+  --text-color: #111827;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+#loading {
+  @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-4 rounded shadow-lg text-gray-800 dark:text-gray-200;
+}
+
+@media (max-width: 768px) {
+  .replace-container {
+    @apply flex-col;
+  }
+
+  .split-container {
+    @apply flex-col;
+  }
+
+  .output-section {
+    @apply w-full;
+  }
+}
+
+/* Dark mode specific styles */
+.dark-theme .container {
+  @apply bg-gray-800 text-gray-100;
+}
+
+.dark-theme textarea {
+  @apply bg-gray-700 text-gray-100 border-gray-600;
+}
+
+.dark-theme button {
+  @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.dark-theme .tab-button {
+  @apply bg-gray-700 hover:bg-gray-600;
+}
+
+.dark-theme .tab-button.active {
+  @apply bg-blue-600;
+}
