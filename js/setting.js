@@ -1,101 +1,66 @@
-import { translations } from './translations.js';
+import { escapeRegExp } from './utils.js';
 import { showNotification } from './utils.js';
-import { addPair } from './utils.js';
-import { matchCaseEnabled, currentMode } from './main.js'; // Giả định export từ main
+import { translations } from './translations.js';
 
-const LOCAL_STORAGE_KEY = 'local_settings';
-
-export function loadModes() {
-  const modeSelect = document.getElementById('mode-select');
-  if (!modeSelect) return;
-  let settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: { default: { pairs: [], matchCase: false } } };
-  const modes = Object.keys(settings.modes);
-  modeSelect.innerHTML = '';
-  modes.forEach(mode => {
-    const option = document.createElement('option');
-    option.value = mode;
-    option.textContent = mode;
-    modeSelect.appendChild(option);
-  });
-  modeSelect.value = currentMode;
-  loadSettings();
-}
-
-export function loadSettings() {
-  let settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: { default: { pairs: [], matchCase: false } } };
-  const modeSettings = settings.modes?.[currentMode] || { pairs: [], matchCase: false };
-  const list = document.getElementById('punctuation-list');
-  if (list) {
-    list.innerHTML = '';
-    if (!modeSettings.pairs || modeSettings.pairs.length === 0) {
-      addPair('', '');
-    } else {
-      modeSettings.pairs.slice().reverse().forEach(pair => {
-        addPair(pair.find || '', pair.replace || '');
-      });
-    }
+export function replaceText(inputText, pairs, matchCase) {
+  if (!inputText || !inputText.trim()) {
+    showNotification(translations.vn.noTextToReplace, 'error');
+    return '';
   }
-  matchCaseEnabled = modeSettings.matchCase || false;
+  let outputText = inputText;
+
+  pairs.forEach(pair => {
+    let find = pair.find;
+    let replace = pair.replace !== null ? pair.replace : '';
+    if (!find) return;
+
+    const escapedFind = escapeRegExp(find);
+    const regexFlags = matchCase ? 'g' : 'gi';
+    const regex = new RegExp(escapedFind, regexFlags);
+
+    outputText = outputText.replace(regex, (match) => {
+      if (matchCase) {
+        return replace;
+      } else {
+        if (match === match.toUpperCase()) {
+          return replace.toUpperCase();
+        } else if (match === match.toLowerCase()) {
+          return replace.toLowerCase();
+        } else if (match[0] === match[0].toUpperCase()) {
+          return replace.charAt(0).toUpperCase() + replace.slice(1).toLowerCase();
+        }
+        return replace;
+      }
+    });
+  });
+
+  pairs.forEach(pair => {
+    let replace = pair.replace !== null ? pair.replace : '';
+    if (!replace) return;
+
+    if (replace === replace.toUpperCase() || /[A-Z]/.test(replace.slice(1))) {
+      return;
+    }
+
+    const pattern = new RegExp(`(^|\\n|\\.\\s)(${escapeRegExp(replace)})`, 'g');
+    outputText = outputText.replace(pattern, (match, prefix, word) => {
+      return prefix + word.charAt(0).toUpperCase() + word.slice(1);
+    });
+  });
+
+  const paragraphs = outputText.split('\n').filter(p => p.trim());
+  return paragraphs.join('\n\n');
 }
 
-export function saveSettings() {
-  const pairs = [];
-  const items = document.querySelectorAll('.punctuation-item');
-  if (items.length === 0) {
-    showNotification(translations.vn.noPairsToSave, 'error');
+export function exportToPDF(text, title = 'Kết quả') {
+  if (!text) {
+    showNotification('Không có nội dung để xuất PDF.', 'error');
     return;
   }
-  items.forEach(item => {
-    const find = DOMPurify.sanitize(item.querySelector('.find')?.value || ''); // Bảo mật: sanitize input
-    const replace = DOMPurify.sanitize(item.querySelector('.replace')?.value || ''); // Bảo mật
-    if (find) pairs.push({ find, replace });
-  });
-
-  let settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: { default: { pairs: [], matchCase: false } } };
-  settings.modes[currentMode] = {
-    pairs: pairs,
-    matchCase: matchCaseEnabled
-  };
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
-  loadSettings();
-  showNotification(translations.vn.settingsSaved.replace('{mode}', currentMode), 'success');
-}
-
-// Mới: Export settings to JSON
-export function exportSettings() {
-  let settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: { default: { pairs: [], matchCase: false } } };
-  const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'extension_settings.json';
-  a.click();
-  URL.revokeObjectURL(url);
-  showNotification(translations.vn.settingsExported, 'success');
-}
-
-// Mới: Import settings from JSON
-export function importSettings() {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.json';
-  input.addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const settings = JSON.parse(e.target.result);
-          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
-          loadModes();
-          showNotification(translations.vn.settingsImported, 'success');
-        } catch (err) {
-          console.error('Lỗi khi phân tích JSON:', err);
-          showNotification(translations.vn.importError, 'error');
-        }
-      };
-      reader.readAsText(file);
-    }
-  });
-  input.click();
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text(title, 10, 10);
+  doc.text(text, 10, 20);
+  doc.save(`${title}.pdf`);
+  showNotification('Đã xuất PDF thành công!', 'success');
 }
