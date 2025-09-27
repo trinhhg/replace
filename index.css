@@ -4,37 +4,176 @@
 
 body {
   font-family: Arial, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
-  @apply max-w-4xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg transition-colors duration-300;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-h1 {
-  @apply text-2xl font-bold text-center md:text-left;
+textarea {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
-h2 {
-  @apply text-xl mb-4 text-center md:text-left;
+button {
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .tab-button {
-  @apply flex-1 p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 cursor-pointer text-center rounded-t-lg transition-colors duration-200;
-}
-
-.tab-button.active {
-  @apply bg-blue-500 text-white;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .tab-content {
-  @apply p-4 border border-t-0 rounded-b-lg bg-gray-50 dark:bg-gray-900 transition-colors duration-300;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.punctuation-item {
-  @apply flex flex-col md:flex-row gap-2 mb-2;
+.punctuation-item input, .punctuation-item button {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.word-count {
+  transition: color 0.3s;
+}
+
+.notification {
+  transition: opacity 0.3s;
+}
+
+.dark-theme {
+  --bg-color: #1f2937;
+  --text-color: #f3f4f6;
+  --border-color: #4b5563;
+  --button-bg: #3b82f6;
+  --button-hover: #2563eb;
+}
+
+.light {
+  --bg-color: #f9fafb;
+  --text-color: #111827;
+  --border-color: #d1d5db;
+  --button-bg: #3b82f6;
+  --button-hover: #2563eb;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.container {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+textarea {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+button {
+  background-color: var(--button-bg);
+  color: #fff;
+}
+
+button:hover {
+  background-color: var(--button-hover);
+}
+
+.tab-button {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.tab-button.active {
+  background-color: var(--button-bg);
+  color: #fff;
+}
+
+.tab-button:hover {
+  background-color: var(--button-hover);
+}
+
+.tab-content {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
 }
 
 .punctuation-item input {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+.punctuation-item button {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+.punctuation-item button:hover {
+  background-color: #dc2626;
+}
+
+.word-count {
+  color: #6b7280;
+}
+
+.notification.success {
+  background-color: #22c55e;
+  color: #fff;
+}
+
+.notification.error {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+#loading {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
+
+#update-overlay {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#update-dialog {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+#update-dialog h3, #update-dialog p {
+  color: var(--text-color);
+}
+
+#update-dialog button {
+  background-color: var(--button-bg);
+  color: #fff;
+}
+
+#update-dialog button:hover {
+  background-color: var(--button-hover);
+}
+
+@media (max-width: 768px) {
+  .replace-container {
+    flex-direction: column;
+  }
+
+  .split-container {
+    flex-direction: column;
+  }
+
+  .punctuation-item {
+    flex-direction: column;
+  }
+
+  .punctuation-item input, .punctuation-item button {
+    width: 100%;
+  }
+}.punctuation-item input {
   @apply flex-1 p-2 border rounded dark:border-gray-600 dark:bg-gray-700 transition-colors duration-200;
 }
 
