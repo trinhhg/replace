@@ -122,7 +122,7 @@ function attachButtonEvents() {
 
 async function checkVersionLoop() {
   try {
-    const baseURL = 'https://trinhhg.github.io/tienichtrinhhg'; // Sử dụng đúng repository
+    const baseURL = 'https://trinhhg.github.io/tienichtrinhhg'; // Sử dụng repository đúng
     const versionResponse = await fetch(`${baseURL}/version.json?${Date.now()}`, { cache: 'no-store' });
     if (!versionResponse.ok) throw new Error('Không thể tải version.json');
     const versionData = await versionResponse.json();
