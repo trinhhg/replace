@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tiện Ích Của Trịnh Hg</title>
+  <link rel="stylesheet" href="index.css">
+  <!-- Tailwind CSS CDN for responsive and beautiful UI -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- jsPDF for PDF export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- DOMPurify for security sanitization -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+  <!-- Firebase SDK Bundle (Compat version for module support) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center p-4">
+  <!-- Form đăng nhập -->
+  <div class="login-container hidden flex-col items-center justify-center w-full max-w-md">
+    <form id="loginForm" class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full">
+      <h2 class="login-title text-2xl font-bold mb-6 text-center">Đăng Nhập</h2>
+      <div class="input-group mb-4 relative">
+        <span class="icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">📧</span>
+        <input type="email" id="email" placeholder="Email" required class="w-full pl-10 p-3 border border-gray-300 dark:border-gray-600 rounded-full bg-gray-100 dark:bg-gray-700">
+      </div>
+      <div class="input-group mb-6 relative">
+        <span class="icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">🔒</span>
+        <input type="password" id="password" placeholder="Mật khẩu" required class="w-full pl-10 p-3 border border-gray-300 dark:border-gray-600 rounded-full bg-gray-100 dark:bg-gray-700">
+      </div>
+      <button type="submit" class="login-button w-full p-3 bg-green-500 text-white rounded-full font-bold hover:bg-green-600">Đăng Nhập</button>
+      <p class="forgot-text mt-4 text-center text-sm">
+        <a href="https://www.facebook.com/share/19eFDC5A4R/" target="_blank" class="text-blue-500 hover:underline">Liên hệ admin để gia hạn tài khoản</a>
+      </p>
+      <p class="forgot-text text-center text-sm">
+        Giá: 4k một ngày, 25k một tuần, 60k một tháng
+      </p>
+    </form>
+  </div>
+
+  <!-- Giao diện chính -->
+  <div class="container hidden w-full max-w-4xl bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+    <div id="header" class="flex justify-between items-center mb-4">
+      <h1 id="app-title" class="text-2xl font-bold">Tiện Ích Của Trịnh Hg</h1>
+      <!-- Payment and Theme buttons will be added by JS here -->
+    </div>
+    <div class="contact-info mb-4 text-sm">
+      <p id="contact-text1">
+        – Gia hạn tài khoản: 
+        <a href="https://www.facebook.com/share/19eFDC5A4R/" target="_blank" id="facebook-link" class="text-blue-500 hover:underline">https://www.facebook.com/share/19eFDC5A4R/</a>
+      </p>
+      <p>
+        - Giá: 4k một ngày, 25k một tuần, 60k một tháng
+      </p>
+      <p>
+        <a href="#" id="logout-link" class="text-gray-900 dark:text-gray-100 hover:underline">Đăng xuất</a>
+      </p>
+    </div>
+    <div class="tabs flex mb-4">
+      <button class="tab-button flex-1 p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-center cursor-pointer" data-tab="settings" id="settings-tab">Settings</button>
+      <button class="tab-button flex-1 p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-center cursor-pointer" data-tab="replace" id="replace-tab">Replace</button>
+      <button class="tab-button flex-1 p-3 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-center cursor-pointer" data-tab="split" id="split-tab">Chia Chương</button>
+    </div>
+
+    <!-- Tab Settings -->
+    <div id="settings" class="tab-content block">
+      <h2 id="settings-title" class="text-xl mb-4">Cài đặt tìm kiếm và thay thế</h2>
+      <div class="mode-controls flex flex-wrap items-center gap-2 mb-4">
+        <label for="mode-select" id="mode-label" class="mr-2">Chọn chế độ:</label>
+        <select id="mode-select" class="p-2 border dark:border-gray-600 bg-white dark:bg-gray-700 rounded">
+          <option value="default">Mặc định</option>
+        </select>
+        <button id="add-mode" class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Thêm chế độ mới</button>
+        <button id="copy-mode" class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Sao Chép Chế Độ</button>
+        <button id="match-case" class="px-3 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Match Case: Tắt</button>
+        <button id="export-settings" class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Xuất Cài Đặt</button>
+        <button id="import-settings" class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Nhập Cài Đặt</button>
+        <button id="rename-mode" class="px-3 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 hidden">Đổi Tên</button>
+        <button id="delete-mode" class="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 hidden">Xóa Chế Độ</button>
+      </div>
+      <div class="action-buttons flex gap-2 mb-4">
+        <button id="add-pair" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Thêm</button>
+        <button id="save-settings" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Lưu cài đặt</button>
+      </div>
+      <div id="punctuation-list" class="flex flex-col gap-2"></div>
+      <div id="pagination-controls" class="flex justify-center mt-4"></div>
+      <div id="error-details" class="text-red-500 text-center mt-2 hidden"></div>
+    </div>
+
+    <!-- Tab Replace -->
+    <div id="replace" class="tab-content hidden">
+      <h2 id="replace-title" class="text-xl mb-4">Thay thế Dấu câu</h2>
+      <div class="replace-container flex flex-col md:flex-row gap-4">
+        <div class="input-section flex-1">
+          <textarea id="input-text" placeholder="Dán văn bản của bạn vào đây..." class="w-full h-40 p-2 border rounded dark:border-gray-600 dark:bg-gray-700"></textarea>
+          <div id="input-word-count" class="text-gray-600 dark:text-gray-400 text-sm mt-1">Words: 0</div>
+          <button id="replace-button" class="w-full mt-2 p-2 bg-blue-500 text-white rounded hover:bg-blue-600">Thay thế</button>
+        </div>
+        <div class="output-section flex-1">
+          <textarea id="output-text" readonly placeholder="Kết quả sẽ xuất hiện ở đây..." class="w-full h-40 p-2 border rounded dark:border-gray-600 dark:bg-gray-700"></textarea>
+          <div id="output-word-count" class="text-gray-600 dark:text-gray-400 text-sm mt-1">Words: 0</div>
+          <button id="copy-button" class="w-full mt-2 p-2 bg-blue-500 text-white rounded hover:bg-blue-600">Sao chép</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Chia Chương -->
+    <div id="split" class="tab-content hidden">
+      <h2 id="split-title" class="text-xl mb-4">Chia Chương</h2>
+      <div class="split-mode-buttons flex flex-wrap gap-2 mb-4">
+        <!-- Buttons for modes 2-10 will be added dynamically by JS -->
+      </div>
+      <div class="split-container flex flex-col gap-4 md:flex-row md:gap-4">
+        <div class="input-section flex-1">
+          <textarea id="split-input-text" placeholder="Dán văn bản của bạn vào đây..." class="w-full h-40 p-2 border rounded dark:border-gray-600 dark:bg-gray-700"></textarea>
+          <div id="split-input-word-count" class="text-gray-600 dark:text-gray-400 text-sm mt-1">Words: 0</div>
+          <button id="split-button" class="w-full mt-2 p-2 bg-blue-500 text-white rounded hover:bg-blue-600">Chia Chương</button>
+        </div>
+        <div id="split-outputs" class="flex-3 flex flex-wrap gap-4">
+          <!-- Dynamic output sections for chapters will be added by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="notification-container" class="fixed top-4 right-4 flex flex-col gap-2 z-50"></div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
