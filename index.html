@@ -1,40 +1,39 @@
 <!DOCTYPE html>
-<html lang="vi" class="light">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tiện Ích Của Trịnh Hg</title>
-  <link rel="stylesheet" href="index.css"> <!-- Đường dẫn tương đối -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trịnh Hg - Công Cụ Xử Lý Văn Bản</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center p-4">
-  <!-- Form đăng nhập (chỉ 1 khung, hiển thị mặc định) -->
-  <div class="login-container flex flex-col items-center justify-center w-full max-w-md">
-    <form id="loginForm" class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg w-full">
-      <h2 class="login-title text-2xl font-bold mb-6 text-center">Đăng Nhập</h2>
-      <div class="input-group mb-4 relative">
-        <span class="icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">📧</span>
-        <input type="email" id="email" placeholder="Email" required class="w-full pl-10 p-3 border border-gray-300 dark:border-gray-600 rounded-full bg-gray-100 dark:bg-gray-700">
-      </div>
-      <div class="input-group mb-6 relative">
-        <span class="icon absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">🔒</span>
-        <input type="password" id="password" placeholder="Mật khẩu" required class="w-full pl-10 p-3 border border-gray-300 dark:border-gray-600 rounded-full bg-gray-100 dark:bg-gray-700">
-      </div>
-      <button type="submit" class="login-button w-full p-3 bg-green-500 text-white rounded-full font-bold hover:bg-green-600">Đăng Nhập</button>
-      <p class="forgot-text mt-4 text-center text-sm">
-        <a href="https://www.facebook.com/share/19eFDC5A4R/" target="_blank" class="text-blue-500 hover:underline">Liên hệ admin để gia hạn tài khoản (4k/ngày, 25k/tuần, 60k/tháng)</a>
-      </p>
-    </form>
-  </div>
+<body>
+    <div class="app-container">
+        <header>
+            <h1 class="web-name">Trịnh Hg</h1>
+            <p class="license-info">Gia hạn tài khoản: <a href="[link facebook]" target="_blank">[link facebook]</a> | Giá: 4k/ngày – 25k/tuần – 60k/tháng</p>
+        </header>
 
-  <!-- Giao diện chính (ẩn mặc định, chỉ show sau đăng nhập) -->
-  <div class="container hidden w-full max-w-4xl bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-    <div id="header" class="flex justify-between items-center mb-4">
+        <nav class="tabs">
+            <button class="tab-link active" data-tab="settings">Settings</button>
+            <button class="tab-link" data-tab="replace">Thay Thế</button>
+            <button class="tab-link" data-tab="split">Chia Chương</button>
+        </nav>
+
+        <main class="card">
+            <div id="settings" class="tab-content active">
+                <div class="control-group mode-select-row">
+                    <label for="mode-select" class="control-label">Chọn chế độ:</label>
+                    <select id="mode-select" class="control-element mode-dropdown"></select>
+                </div>
+                
+                <div class="control-group mode-management-row">
+                    <button id="add-mode-btn" class="btn">Thêm chế độ mới</button>
+                    <button id="copy-mode-btn" class="btn">Sao chép chế độ</button>
+                    <button id="rename-mode-btn" class="btn">Đổi tên</button>
+                    <button id="delete-mode-btn" class    <div id="header" class="flex justify-between items-center mb-4">
       <h1 id="app-title" class="text-2xl font-bold">Tiện Ích Của Trịnh Hg</h1>
       <!-- Payment and Theme buttons will be added by JS -->
     </div>
